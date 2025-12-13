@@ -1,10 +1,13 @@
 chatgpt
+gpt
 sora
 DeepSeek
 gemini
 deepmind
 grok
 claude
+qwen
+glm
 
 Anthropic
 宇树
@@ -24,12 +27,3 @@ AMD
 谷歌
 google
 openai
-
-国产
-中国
-美国
-日本
-韩国
-欧盟
-欧洲
-
