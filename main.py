@@ -3624,15 +3624,25 @@ def split_content_into_batches(
 
             # 构建词组标题（只支持企业微信）
             word_header = ""
-            if count >= 10:
-                word_header = f"### {word}\n\n"
-                word_header += f"> <font color=\"warning\">{count} 条</font>\n\n"
-            elif count >= 5:
-                word_header = f"### {word}\n\n"
-                word_header += f"> <font color=\"comment\">{count} 条</font>\n\n"
+            # 第一个关键词时，只显示条数，不显示关键词标题（因为会在前面统一显示）
+            if i == 0:
+                if count >= 10:
+                    word_header = f"> <font color=\"warning\">{count} 条</font>\n\n"
+                elif count >= 5:
+                    word_header = f"> <font color=\"comment\">{count} 条</font>\n\n"
+                else:
+                    word_header = f"> {count} 条\n\n"
             else:
-                word_header = f"### {word}\n\n"
-                word_header += f"> {count} 条\n\n"
+                # 其他关键词正常显示标题
+                if count >= 10:
+                    word_header = f"### {word}\n\n"
+                    word_header += f"> <font color=\"warning\">{count} 条</font>\n\n"
+                elif count >= 5:
+                    word_header = f"### {word}\n\n"
+                    word_header += f"> <font color=\"comment\">{count} 条</font>\n\n"
+                else:
+                    word_header = f"### {word}\n\n"
+                    word_header += f"> {count} 条\n\n"
 
             # 构建第一条新闻（只支持企业微信）
             first_news_line = ""
@@ -3651,6 +3661,11 @@ def split_content_into_batches(
 
             # 第一个关键词使用 base_header，其他关键词不使用
             if i == 0:
+                # 在第一个关键词前添加监控关键字列表
+                keywords_list = [s["word"] for s in report_data["stats"] if s["count"] > 0]
+                if keywords_list:
+                    keywords_line = f"### 监控关键字：{' '.join(keywords_list)}\n"
+                    word_with_first_news = keywords_line + word_with_first_news
                 test_batch = base_header + word_with_first_news
                 # 检查第一个关键词是否超过限制
                 if (
@@ -3945,13 +3960,13 @@ def send_to_wework(
 
     # 发送预告消息
     platform_names = [p.get('name', p['id']) for p in CONFIG['PLATFORMS']]
-    platform_str = "、".join(platform_names)
+    platform_str =  "、".join(platform_names)
 
     if is_text_mode:
-        preview_content = f"现在开始推送\n监控平台：{platform_str}\n\nPowered by Lee"
+        preview_content = f"到点开始推送\n{platform_str}\n\nPowered by Lee"
         preview_payload = {"msgtype": "text", "text": {"content": preview_content}}
     else:
-        preview_content = f"**现在开始推送，全网监控平台数据：**\n\n>{platform_str}\n\n<font color=\"comment\">Powered by Lee</font>"
+        preview_content = f"**到点`开始推送，监控全网平台数据：**\n\n>{platform_str}\n\n<font color=\"comment\">Powered by Lee</font>"
         preview_payload = {"msgtype": "markdown", "markdown": {"content": preview_content}}
 
     try:
